@@ -109,6 +109,17 @@ func (d *db) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
+func (d *db) FindAll(ctx context.Context) (u []user.User, err error) {
+	cursor, err := d.collection.Find(ctx, bson.M{})
+	if cursor.Err() != nil {
+		return u, fmt.Errorf("failed to find all users due to error: %v", err)
+	}
+	if err = cursor.All(ctx, &u); err != nil {
+		return u, fmt.Errorf("failed to read all documents from cursor. error: %v", err)
+	}
+	return u, nil
+}
+
 func NewStorage(database *mongo.Database, collection string, logger *logging.Logger) user.Storage {
 
 	return &db{
